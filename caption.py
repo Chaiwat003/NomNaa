@@ -32,7 +32,7 @@ def generate_captions(menu_name: str, price: float) -> Dict[str, str]:
         พจนานุกรมที่มีคีย์ 'Cute', 'Minimal', 'Gen-Z' พร้อมแคปชั่น
     
     Raises:
-        ValueError: หากไม่พบ GOOGLE_API_KEY
+        ValueError: หากไม่พบ GOOGLE_API_KEY หรือ API เกิดข้อผิดพลาด
     """
     init_gemini()
     
@@ -54,11 +54,26 @@ def generate_captions(menu_name: str, price: float) -> Dict[str, str]:
     Gen-Z: [แคปชั่นที่นี่]
     """
     
-    response = model.generate_content(prompt)
-    
-    # แยกแคปชั่นจากการตอบกลับ
-    captions = parse_captions(response.text)
-    return captions
+    try:
+        response = model.generate_content(prompt)
+        
+        # ตรวจสอบว่าการตอบกลับมีข้อมูลหรือไม่
+        if not response.candidates:
+            raise ValueError("❌ API ไม่ได้ส่งการตอบกลับ")
+        
+        if response.candidates[0].finish_reason != 1:
+            raise ValueError(f"❌ API การตอบกลับไม่สมบูรณ์ (finish_reason: {response.candidates[0].finish_reason})")
+        
+        # แยกแคปชั่นจากการตอบกลับ
+        captions = parse_captions(response.text)
+        return captions
+        
+    except ValueError as e:
+        if "response.text" in str(e) or "finish_reason" in str(e):
+            print("❌ เกิดข้อผิดพลาด: API ส่งการตอบกลับที่ว่างเปล่า")
+            print("   อาจเป็นเพราะ safety filter หรือปัญหาอื่นกับ API")
+            raise ValueError("ไม่สามารถสร้างแคปชั่นได้ กรุณาลองใหม่")
+        raise
 
 
 def parse_captions(response_text: str) -> Dict[str, str]:
