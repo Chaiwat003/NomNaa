@@ -217,23 +217,29 @@ def send_message_with_done_button(lines: list, bot_token: str, chat_id: str, ord
     """Send Telegram message with an inline 'เสร็จแล้ว' button and register a callback handler."""
     global pending_callbacks, listener_thread
     token = str(uuid.uuid4())
+    
+    # แก้ไข 1: ส่งเป็น Dictionary ธรรมดา ไม่ต้องใช้ json.dumps() แล้ว
     reply_markup = {"inline_keyboard": [[{"text": "เสร็จแล้ว", "callback_data": token}]]}
-    payload = {"chat_id": chat_id, "text": "\n".join(lines), "reply_markup": json.dumps(reply_markup)}
+    payload = {"chat_id": chat_id, "text": "\n".join(lines), "reply_markup": reply_markup}
+    
     try:
-        resp = requests.post(f"https://api.telegram.org/bot{bot_token}/sendMessage", data=payload)
+        # แก้ไข 2: เปลี่ยนจาก data=payload เป็น json=payload ตามมาตรฐาน API
+        resp = requests.post(f"https://api.telegram.org/bot{bot_token}/sendMessage", json=payload)
+        
+        # ถ้ายิง API ไม่สำเร็จ ให้คืนค่าข้อความ Error จาก Telegram กลับไปโชว์
         if not resp.ok:
-            return False
+            return f"Telegram API Error: {resp.text}"
+            
         resj = resp.json()
         msg_id = resj.get("result", {}).get("message_id")
         pending_callbacks[token] = {"timestamp": order_timestamp, "message_id": msg_id, "chat_id": chat_id, "text": "\n".join(lines)}
-        # start listener thread once
+        
         if listener_thread is None or not listener_thread.is_alive():
             listener_thread = threading.Thread(target=_telegram_update_poller, args=(bot_token,), daemon=True)
             listener_thread.start()
         return True
-    except Exception:
-        return False
-
+    except Exception as e:
+        return f"System Error: {str(e)}"
 
 with st.expander("สั่งอาหาร (Place an order)"):
     # interactive controls (not inside a Streamlit form) so price updates immediately
@@ -354,15 +360,16 @@ with st.expander("สั่งอาหาร (Place an order)"):
             if bot_token and chat_id:
                 alerted = send_message_with_done_button(lines, bot_token, chat_id, timestamp)
             else:
-                alerted = False
+                alerted = "หาค่า Token หรือ Chat ID ไม่เจอใน Hugging Face Secrets"
 
-            if saved and alerted:
-                st.success("ออเดอร์ทั้งหมดถูกบันทึกและส่งแจ้งเตือนเรียบร้อย")
+            if saved and alerted is True:
+                st.success("ออเดอร์ทั้งหมดถูกบันทึกและส่งแจ้งเตือนเข้า Telegram เรียบร้อย! 🐷")
                 st.session_state.cart = []
-            elif saved and not alerted:
-                st.warning("ออเดอร์ถูกบันทึกแล้ว แต่ไม่สามารถส่ง Telegram ได้ (ตรวจสอบ config)")
+            elif saved and alerted is not True:
+                # แก้ไข 3: ปรินต์สาเหตุ Error ออกมาหน้าเว็บเลย
+                st.warning(f"ออเดอร์บันทึกลงชีตแล้ว แต่ส่ง Telegram ไม่ได้ ❌ สาเหตุ: {alerted}")
                 st.session_state.cart = []
-            elif not saved and alerted:
-                st.warning("ไม่สามารถบันทึกออเดอร์ใน Sales logger ได้ แต่ส่ง Telegram สำเร็จ")
+            elif not saved and alerted is True:
+                st.warning("ไม่สามารถบันทึกออเดอร์ในชีตได้ แต่ส่ง Telegram สำเร็จ")
             else:
-                st.error("ไม่สามารถบันทึกออเดอร์ได้ โปรดลองอีกครั้ง")
+                st.error("ไม่สามารถบันทึกออเดอร์ และไม่สามารถส่งแจ้งเตือนได้เลย")
