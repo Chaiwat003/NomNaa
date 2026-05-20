@@ -110,7 +110,7 @@ def render_message(rep: dict) -> str:
 
     lines = []
     lines.append(f"สรุปยอดเมื่อวานน้าาา 🥳 \nวันที่: {rep['date']}")
-    lines.append(f"ยอดรวม: ฿{rep['total_sales']:.2f} 💸")
+    lines.append(f"ยอดรวม: ฿{rep['total_sales']} 💸")
     lines.append(f"จำนวนบันทึก: {rep['total_items']} รายการ")
 
     if rep.get("best_by_qty"):
@@ -118,7 +118,7 @@ def render_message(rep: dict) -> str:
         lines.append(f"เมนูที่ขายดีที่สุด: {name} x{qty} 🥇🍽️")
     if rep.get("best_by_revenue"):
         name_r, rev = rep["best_by_revenue"]
-        lines.append(f"เมนูที่ทำเงินที่สุด: {name_r} — ฿{rev:.2f} 💰")
+        lines.append(f"เมนูที่ทำเงินที่สุด: {name_r} — ฿{rev} 💰")
 
     lines.append("ขอบคุณทีมงานที่น่ารักทุกคนน้าาา 💖✨")
     return "\n".join(lines)

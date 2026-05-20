@@ -126,7 +126,7 @@ def send_telegram_alert(order: dict, bot_token: str, chat_id: str) -> bool:
     toppings = order.get('toppings') or "(ไม่มี)"
     price = order.get('price')
     try:
-        price_str = f"{float(price):.2f} บาท" if price is not None else "-"
+        price_str = f"{float(price)} บาท" if price is not None else "-"
     except Exception:
         price_str = str(price)
 
@@ -335,15 +335,15 @@ with st.expander("สั่งอาหาร (Place an order)"):
         for i, it in enumerate(list(st.session_state.cart)):
             cols = st.columns([4, 2, 1, 2, 1])
             cols[0].write(f"{it['menu']} — {it['toppings']}")
-            cols[1].write(f"{it['unit_price']:.2f} บาท/ชิ้น")
+            cols[1].write(f"{it['unit_price']} บาท/ชิ้น")
             cols[2].write(f"x {it['qty']}")
-            cols[3].write(f"{it['total']:.2f} บาท")
+            cols[3].write(f"{it['total']} บาท")
             if cols[4].button("ลบ", key=f"remove_{i}"):
                 st.session_state.cart.pop(i)
                 safe_rerun()
             total_sum += it['total']
 
-        st.write(f"**ยอดรวมทั้งหมด:** {total_sum:.2f} บาท")
+        st.write(f"**ยอดรวมทั้งหมด:** {total_sum} บาท")
 
     if st.button("สั่งและบันทึกทั้งหมด"):
         if not customer or not customer.strip():
@@ -361,8 +361,8 @@ with st.expander("สั่งอาหาร (Place an order)"):
                         it.get("toppings", "(ไม่มี)"),
                             it.get("notes", "(ไม่มี)"),
                             str(it["qty"]),
-                            f"{it['unit_price']:.2f}",
-                            f"{it['total']:.2f}",
+                            f"{it['unit_price']}",
+                            f"{it['total']}",
                             customer,
                             contact,
                     ]
@@ -378,11 +378,11 @@ with st.expander("สั่งอาหาร (Place an order)"):
             for it in st.session_state.cart:
                 toppings_text = it.get('toppings') or "(ไม่มี)"
                 note_text = it.get('notes') or "(ไม่มี)"
-                item_line = f"{it['qty']} x {it['menu']} ({toppings_text}) @ {it['unit_price']:.2f} บาท = {it['total']:.2f} บาท / หมายเหตุ: {note_text}"
+                item_line = f"{it['qty']} x {it['menu']} ({toppings_text}) @ {it['unit_price']} บาท = {it['total']} บาท / หมายเหตุ: {note_text}"
                 lines.append(item_line)
                 grand += it['total']
             lines.append("")
-            lines.append(f"ยอดรวมทั้งหมด: {grand:.2f} บาท")
+            lines.append(f"ยอดรวมทั้งหมด: {grand} บาท")
             lines.append(f"ชื่อลูกค้า: {customer}")
             if contact:
                 lines.append(f"เบอร์ติดต่อ: {contact}")
