@@ -25,4 +25,4 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         # แก้ไข USERNAME และ REPO_NAME ในบรรทัดด้านล่างให้ตรงกับของคุณ
         # รูปแบบ URL: https://<USERNAME>:$HF_TOKEN@huggingface.co/spaces/<USERNAME>/<SPACE_NAME>
-        run: git push --force https://Th3rds:$HF_TOKEN@huggingface.co/spaces/Th3rds/Nomnaa_demi main
+        run: git push --force https://Th3rds:$HF_TOKEN@huggingface.co/spaces/Th3rds/khamoonaa-bot main
