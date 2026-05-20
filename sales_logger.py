@@ -9,6 +9,10 @@ Examples:
 This script loads environment variables via python-dotenv, imports `get_sheet` from
 `sheets_client`, parses CLI entries in the form เมนู:จำนวน:ราคา, computes the total,
 and appends a row using `get_sheet().append_row([...])`.
+
+Updates:
+- Appends extended columns: [วันที่, เมนู, จำนวน, ราคา, ยอดรวม, ท็อปปิ้ง, ชื่อ, เบอร์]
+- Creates a header row if the sheet is empty or the header doesn't match.
 """
 
 from __future__ import annotations
@@ -74,12 +78,34 @@ def main(argv: list[str] | None = None) -> int:
 		print(f"Failed to get sheet: {exc}")
 		return 3
 
+	# Ensure header exists (extended columns)
+	# Column order expected by the sheet UI: วันที่, เมนู, ท็อปปิ้ง, จำนวน, ราคา, ยอดรวม, ชื่อ, เบอร์
+	header = ["วันที่", "เมนู", "ท็อปปิ้ง", "จำนวน", "ราคา", "ยอดรวม", "ชื่อ", "เบอร์"]
+	try:
+		values = sheet.get_all_values()
+		if not values or values[0][: len(header)] != header:
+			# insert header as the first row
+			sheet.insert_row(header, index=1)
+	except Exception as exc:
+		print(f"Warning: unable to verify/insert header row: {exc}")
+
 	# Append one row per item matching the spreadsheet columns:
 	# [วันที่, เมนู, จำนวน, ราคา, ยอดรวม]
 	try:
 		for name, qty, price in items:
 			item_total = qty * price
-			row = [timestamp, name, str(qty), f"{price:.2f}", f"{item_total:.2f}"]
+			# Append extended row with columns matching header order:
+			# [timestamp, menu, toppings, qty, price, total, name, contact]
+			row = [
+				timestamp,
+				name,
+				"",
+				str(qty),
+				f"{price:.2f}",
+				f"{item_total:.2f}",
+				"",
+				"",
+			]
 			sheet.append_row(row)
 			print(f"Appended row: {row}")
 	except Exception as exc:

@@ -13,11 +13,12 @@ client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 MODEL = "gemini-2.5-flash"
 
 SYSTEM_INSTRUCTION = """
-คุณคือ Demi ผู้ช่วย AI ของร้าน Nomnaa°
-หน้าที่ของนักศึกษาคือแปลงคำสั่งภาษาไทยเป็น JSON action
+คุณคือ "น้องคากิ" ผู้ช่วย AI ของร้าน "ขาหมูน้าา"
+หน้าที่ของคุณคือแปลงคำสั่งสั่งอาหารของลูกค้าเป็น JSON action
+โดยคำนวณราคาให้ถูกต้อง (เช่น ข้าวขาหมู 50 บาท + เพิ่มไข่ 10 บาท = 60 บาท) 
 ตอบกลับเป็น JSON เท่านั้น ในรูปแบบ:
 {"action": "log_sale", "args": {"menu": "...", "quantity": N, "price": N}}
-ถ้าคำสั่งไม่ใช่การบันทึกยอดขาย ตอบ: {"action": "unknown", "args": {}}
+ถ้าคำสั่งไม่ใช่การสั่งอาหารหรือบันทึกยอด ตอบ: {"action": "unknown", "args": {}}
 """
 
 TRACE_FILE = "agent_trace.log"

@@ -1,142 +1,91 @@
-# NomNaa - Instagram Caption Generator 🎨
+# ขาหมูน้าา — ระบบช่วยรับออเดอร์หน้าร้าน 🍽️
 
-ตัวสร้างแคปชั่น Instagram สำหรับเมนูอาหารในคาเฟ่ Nomnaa โดยใช้ AI (Google Gemini 2.5 Flash)
+ระบบช่วยรับและสรุปออเดอร์สำหรับร้าน "ขาหมูน้าา" โดยมุ่งเน้นการรองรับคำสั่งแบบมีเงื่อนไข (เช่น "ไม่เอาไข่ต้ม", "แยกน้ำ") และการคำนวณราคาตามท็อปปิ้ง/ตัวเลือกต่าง ๆ รวมถึงจัดข้อความสั้นสำหรับครัวเพื่อให้แม่ค้าทำงานต่อได้รวดเร็ว
 
-## ✨ ฟีเจอร์
+## 🔎 Demo Day Checklist
 
-- 🎯 สร้างแคปชั่น Instagram 3 แบบสไตล์ต่าง ๆ:
-  - **Cute**: น่ารัก สนุกสนาน มีอีโมจิ
-  - **Minimal**: สวยหรู เรียบร้อย ใช้คำน้อย
-  - **Gen-Z**: ทันสมัย ตลกขบขัน เข้าใจง่าย
-- 🤖 ใช้ Google Gemini API สำหรับการสร้างเนื้อหา
-- 🔄 รับข้อมูลจากผู้ใช้ผ่าน input
-- 📝 ผลลัพธ์เป็นภาษาไทย
+- [ ] อธิบายว่าระบบทำอะไรสำหรับ domain ของนักศึกษา (ไม่ใช่ MilkLab°)
+- [ ] ใส่ link ไปยัง live demo URL: https://<YOUR_DEPLOY_URL> (แทนที่ด้วย URL จริง)
+- [ ] มีวิธีรันในเครื่องท้องถิ่น (local setup)
+- [ ] ใส่ link ไปยัง PIVOT.md เพื่อให้ recruiter เห็น thinking process: [PIVOT.md](PIVOT.md)
+
+## ✨ ฟีเจอร์หลัก
+
+- Parsing คำสั่งแบบธรรมชาติ: เข้าใจคำสั่งลูกค้าที่มีเงื่อนไข (exclusions, additions)
+- คำนวณราคาอัตโนมัติ: รวมราคาเมนูพื้นฐานและท็อปปิ้ง
+- สรุปออเดอร์สั้นสำหรับครัว: ข้อความกระชับ เหลือบอ่านแล้วเข้าใจ
+- เก็บฐานความรู้เมนู: ข้อมูลท็อปปิ้ง เวลาเปิด และราคา
 
 ## 📋 ความต้องการ
 
-- Python 3.8 ขึ้นไป
-- Google API Key (สำหรับ Gemini)
-- `google-generativeai` library
-- `python-dotenv` library
+- Python 3.10 หรือใหม่กว่า
+- ติดตั้ง dependencies ใน `requirements.txt`
+- เก็บคีย์และไฟล์ความลับภายนอก repo (เช่น `.env`, `service-account.json`)
 
-## 🚀 วิธีการใช้งาน
+## 🚀 ติดตั้งและรัน (Local)
 
-### 1. ติดตั้ง Dependencies
+1. ติดตั้ง dependencies:
 
 ```bash
-pip install google-generativeai python-dotenv
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-### 2. ตั้งค่า Environment Variables
+2. ตั้งค่า environment variables (ตัวอย่าง `.env`):
 
-สร้างไฟล์ `.env` ในโฟลเดอร์โปรเจกต์:
-
-```
+```text
+# ตัวอย่าง
 GOOGLE_API_KEY=your_google_api_key_here
 ```
 
-> 📌 ได้ API Key จาก [Google AI Studio](https://aistudio.google.com/apikey)
+3. รันแอปตัวอย่าง (ถ้ามี UI แบบ Streamlit):
 
-### 3. รันโปรแกรม
+```powershell
+# รัน Streamlit UI
+c:/python312/python.exe -m streamlit run app.py
 
-```bash
-python caption.py
+# หรือรันไฟล์ CLI
+c:/python312/python.exe caption.py
 ```
 
-ระบบจะขอให้คุณป้อนข้อมูล:
-- 🍽️ ชื่อเมนู (เช่น "Matcha Latte")
-- 💰 ราคา (เช่น "120")
+## 🔗 Live demo
 
-### 4. ดูผลลัพธ์
-
-โปรแกรมจะแสดง 3 แคปชั่นที่สร้างขึ้นมา พร้อมตัวอย่าง:
+ถ้ามี Deploy URL ให้วางที่นี่ (ตัวอย่าง):
 
 ```
-==================================================
-📝 Cute:
-[แคปชั่นน่ารัก...]
-
-==================================================
-✨ Minimal:
-[แคปชั่นสวยหรู...]
-
-==================================================
-🚀 Gen-Z:
-[แคปชั่นทันสมัย...]
-==================================================
+https://your-deploy-url.example
 ```
 
-## 📁 โครงสร้างไฟล์
+แทนที่ด้วย URL จริงก่อน Demo Day เพื่อให้ลิงก์ทำงาน
+
+## 🗂️ โครงสร้างไฟล์ที่เกี่ยวข้อง
 
 ```
-NomNaa/
-├── caption.py          # โปรแกรมสร้างแคปชั่น
-├── test.py            # ตัวอย่างฟังก์ชัน (ไม่เกี่ยวข้อง)
-├── .env               # Environment variables
-├── .gitignore         # Git ignore rules
-└── README.md          # ไฟล์นี้
+./
+├── app.py           # (UI/Streamlit ถ้ามี)
+├── caption.py       # ฟังก์ชันสรุปออเดอร์ / แคปชั่นตัวอย่าง
+├── knowledge/       # ฐานความรู้เมนู (ข้อมูลร้าน ขาหมู)
+├── requirements.txt
+└── README.md
 ```
 
-## 🔧 ฟังก์ชั่นหลัก
+## 🔒 ความปลอดภัย
 
-### `generate_captions(menu_name: str, price: float) -> Dict[str, str]`
-สร้างแคปชั่น 3 แบบสำหรับเมนูโดยใช้ Gemini API
-
-**Parameters:**
-- `menu_name` (str): ชื่อรายการเมนู
-- `price` (float): ราคา (บาท)
-
-**Returns:**
-- Dictionary ที่มี keys: "Cute", "Minimal", "Gen-Z"
-
-### `parse_captions(response_text: str) -> Dict[str, str]`
-แยกแคปชั่นจากการตอบกลับของโมเดล
-
-## ⚙️ ตัวแปร Environment
-
-| ตัวแปร | คำอธิบาย |
-|--------|---------|
-| `GOOGLE_API_KEY` | Google API Key สำหรับใช้ Gemini API |
-
-## 📝 ตัวอย่างการใช้งาน
-
-```python
-from caption import generate_captions
-
-# สร้างแคปชั่นสำหรับเมนู
-captions = generate_captions("Iced Americano", 79.0)
-
-# แสดงผลลัพธ์
-print(captions['Cute'])
-print(captions['Minimal'])
-print(captions['Gen-Z'])
-```
-
-## 🎯 Case Use
-
-- 📱 สร้างแคปชั่น Instagram สำหรับโพสต์เมนูใหม่
-- 🎨 ทดลองรูปแบบการเขียนแบบต่าง ๆ
-- ⚡ ประหยัดเวลาในการ copywriting
-
-## 🐛 แก้ไขปัญหา
-
-### "ModuleNotFoundError: No module named 'google'"
-```bash
-pip install google-generativeai
-```
-
-### "GOOGLE_API_KEY not found"
-ตรวจสอบว่า:
-- ไฟล์ `.env` อยู่ในโฟลเดอร์เดียวกับ `caption.py`
-- `.env` มี `GOOGLE_API_KEY=...` ถูกต้อง
-
-### "ValueError: ราคาต้องเป็นตัวเลข"
-ป้อนราคาเป็นตัวเลขเท่านั้น (เช่น 120 ไม่ใช่ "120 บาท")
+- อย่า commit ไฟล์ความลับ เช่น `.env` หรือ `service-account.json` ลงใน git
+- หากเผลอ commit ให้รีเซ็ตคีย์และลบไฟล์จากประวัติ (เช่นใช้ `git filter-repo`)
 
 ## 📄 License
 
 ยังไม่ระบุ
 
-## 👨‍💻 Author
+## 👨‍🍳 Author
 
-NomNaa Cafe Team
+ทีมร้านขาหมน้าา
+
+## Demo Day Self-Check
+
+- [ ] Deploy URL ใช้งานได้ (เปิดทดสอบล่าสุด: __________)
+- [ ] ไม่มี `.env` หรือ `*.json` ใน git history
+- [ ] PIVOT.md ครบ 3 ข้อ
+- [ ] README อธิบายระบบของ domain ตัวเอง (ไม่ใช่ MilkLab°)
+- [ ] knowledge base, prompt, UI ปรับเป็น domain ใหม่หมดแล้ว
