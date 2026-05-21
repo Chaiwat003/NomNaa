@@ -20,39 +20,49 @@ import json
 
 
 def safe_rerun():
-    """Call Streamlit's rerun in a way that's compatible across versions.
-
-    Tries the public API `st.experimental_rerun()`. If that's missing, raises
-    Streamlit's internal RerunException to trigger a rerun.
-    """
+    """Call Streamlit's rerun in a way that's compatible across versions."""
     try:
-        st.experimental_rerun()
-    except Exception:
-        # try internal exception paths across Streamlit versions
-        for mod_path in (
-            "streamlit.runtime.scriptrunner.script_runner",
-            "streamlit.scriptrunner.script_runner",
-            "streamlit.script_runner",
-        ):
-            try:
-                module = __import__(mod_path, fromlist=["RerunException"]) 
-                RerunException = getattr(module, "RerunException")
-                raise RerunException from None
-            except Exception:
-                continue
-        # last-resort: cannot programmatically trigger rerun in this environment.
-        # Fall back to a no-op so the app doesn't crash; UI will reflect
-        # session_state changes on the next user interaction.
+        # เพิ่มคำสั่ง st.rerun() สำหรับ Streamlit เวอร์ชั่นใหม่
+        st.rerun()
+    except AttributeError:
+        # ถ้าเป็นเวอร์ชั่นเก่า ค่อยกลับไปใช้ experimental_rerun
         try:
-            st.warning("Notice: Streamlit rerun not available in this environment; UI will update on next interaction.")
+            st.experimental_rerun()
         except Exception:
-            pass
-        return
+            for mod_path in (
+                "streamlit.runtime.scriptrunner.script_runner",
+                "streamlit.scriptrunner.script_runner",
+                "streamlit.script_runner",
+            ):
+                try:
+                    module = __import__(mod_path, fromlist=["RerunException"]) 
+                    RerunException = getattr(module, "RerunException")
+                    raise RerunException from None
+                except Exception:
+                    continue
+            
+            try:
+                st.warning("Notice: Streamlit rerun not available in this environment; UI will update on next interaction.")
+            except Exception:
+                pass
+            return
 
 load_dotenv()
 client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 MODEL = "gemini-2.5-flash"
 
+def safe_generate(prompt: str, max_retries: int = 3):
+    for attempt in range(max_retries):
+        try:
+            return client.models.generate_content(model=MODEL, contents=prompt)
+        except Exception as e:
+            if "quota" in str(e).lower() or "RESOURCE_EXHAUSTED" in str(e):
+                wait = 2 ** attempt  # รอ 1, 2, 4 วินาทีแล้วลองใหม่
+                print(f"Rate limited. รอ {wait} วินาที...")
+                time.sleep(wait)
+            else:
+                raise
+    raise RuntimeError("เกิน retry limit")
 
 @st.cache_resource
 def load_rag():
@@ -88,13 +98,12 @@ if prompt := st.chat_input("ถามอะไรเกี่ยวกับร�
 
 คำถาม: {prompt}
 """
-    response = client.models.generate_content(model=MODEL, contents=full_prompt)
+    response = safe_generate(full_prompt)
     answer = response.text
 
     st.session_state.messages.append({"role": "assistant", "content": answer})
     with st.chat_message("assistant"):
         st.write(answer)
-
 
 # ----- Order form: save to Excel and Telegram alert -----
 def save_order_to_excel(order: dict, filename: str = "orders.xlsx") -> bool:
