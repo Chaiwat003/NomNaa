@@ -19,6 +19,10 @@ import uuid
 import json
 import logging
 
+# configure simple logging for debugging Telegram interactions
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logger = logging.getLogger(__name__)
+
 
 def safe_rerun():
     """Call Streamlit's rerun in a way that's compatible across versions."""
@@ -136,13 +140,13 @@ def send_telegram_alert(order: dict, bot_token: str, chat_id: str) -> bool:
     toppings = order.get('toppings') or "(ไม่มี)"
     price = order.get('price')
     try:
-        price_str = f"{float(price)} บาท" if price is not None else "-"
+        price_str = f"{int(round(float(price)))} บาท" if price is not None else "-"
     except Exception:
         price_str = str(price)
 
     text_lines.append(f"เมนู: {menu}")
     text_lines.append(f"ท็อปปิ้ง: {toppings}")
-    text_lines.append(f"ราคา: {price_str}")
+    text_lines.append(f"ราคา: {price_str}")    
     # include explicit notes if provided
     if order.get('notes'):
         text_lines.append(f"หมายเหตุเพิ่มเติม: {order.get('notes')}")
@@ -363,7 +367,7 @@ with st.expander("สั่งอาหาร (Place an order)"):
         toppings_list.append("พิเศษ")
 
     computed_price = base_price + toppings_price
-    st.metric("ราคา/ชิ้น (บาท)", f"{computed_price:} บาท")
+    st.metric("ราคา/ชิ้น (บาท)", f"{int(round(computed_price))} บาท")
 
     qty = st.number_input("จำนวน (ชิ้น)", min_value=1, value=1, step=1)
     customer = st.text_input("ชื่อลูกค้า (จำเป็น)")
@@ -393,15 +397,15 @@ with st.expander("สั่งอาหาร (Place an order)"):
         for i, it in enumerate(list(st.session_state.cart)):
             cols = st.columns([4, 2, 1, 2, 1])
             cols[0].write(f"{it['menu']} — {it['toppings']}")
-            cols[1].write(f"{it['unit_price']} บาท/ชิ้น")
+            cols[1].write(f"{int(round(it['unit_price']))} บาท/ชิ้น")
             cols[2].write(f"x {it['qty']}")
-            cols[3].write(f"{it['total']} บาท")
+            cols[3].write(f"{int(round(it['total']))} บาท")
             if cols[4].button("ลบ", key=f"remove_{i}"):
                 st.session_state.cart.pop(i)
                 safe_rerun()
             total_sum += it['total']
 
-        st.write(f"**ยอดรวมทั้งหมด:** {total_sum} บาท")
+            st.write(f"**ยอดรวมทั้งหมด:** {int(round(total_sum))} บาท")
 
     if st.button("สั่งและบันทึกทั้งหมด"):
         if not customer or not customer.strip():
@@ -436,11 +440,11 @@ with st.expander("สั่งอาหาร (Place an order)"):
             for it in st.session_state.cart:
                 toppings_text = it.get('toppings') or "(ไม่มี)"
                 note_text = it.get('notes') or "(ไม่มี)"
-                item_line = f"{it['qty']} x {it['menu']} ({toppings_text}) @ {it['unit_price']} บาท = {it['total']} บาท / หมายเหตุ: {note_text}"
+                item_line = f"{it['qty']} x {it['menu']} ({toppings_text}) @ {int(round(it['unit_price']))} บาท = {int(round(it['total']))} บาท / หมายเหตุ: {note_text}"
                 lines.append(item_line)
                 grand += it['total']
             lines.append("")
-            lines.append(f"ยอดรวมทั้งหมด: {grand} บาท")
+            lines.append(f"ยอดรวมทั้งหมด: {int(round(grand))} บาท")
             lines.append(f"ชื่อลูกค้า: {customer}")
             if contact:
                 lines.append(f"เบอร์ติดต่อ: {contact}")
