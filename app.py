@@ -14,6 +14,7 @@ import threading
 import time
 import uuid
 import json
+import logging
 
 
 def safe_rerun():
@@ -49,6 +50,10 @@ def safe_rerun():
 load_dotenv()
 client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 MODEL = "gemini-2.5-flash"
+
+# configure simple logging for debugging Telegram interactions
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logger = logging.getLogger(__name__)
 
 
 @st.cache_resource
@@ -141,7 +146,11 @@ def send_telegram_alert(order: dict, bot_token: str, chat_id: str) -> bool:
     text = "\n".join(text_lines)
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     try:
-        resp = requests.post(url, data={"chat_id": chat_id, "text": text})
+        resp = requests.post(url, data={"chat_id": chat_id, "text": text}, timeout=10)
+        try:
+            logger.info("send_telegram_alert resp: %s %s", resp.status_code, resp.text)
+        except Exception:
+            pass
         return resp.ok
     except Exception:
         return False
@@ -178,14 +187,27 @@ def _mark_order_done_in_sheet(timestamp: str):
 def _telegram_update_poller(bot_token: str):
     global pending_callbacks
     offset = None
-    while pending_callbacks:
+    logger.info("Telegram poller started")
+    while True:
         try:
             params = {"timeout": 20}
             if offset:
                 params["offset"] = offset
+            # if we only care about callback queries, ask Telegram to return only those
+            try:
+                if pending_callbacks:
+                    params["allowed_updates"] = json.dumps(["callback_query"])
+            except Exception:
+                pass
+
             resp = requests.get(f"https://api.telegram.org/bot{bot_token}/getUpdates", params=params, timeout=30)
+            try:
+                logger.debug("getUpdates resp: %s", resp.text)
+            except Exception:
+                pass
             data = resp.json()
             if not data.get("ok"):
+                logger.warning("getUpdates returned not ok: %s", data)
                 time.sleep(2)
                 continue
             for upd in data.get("result", []):
@@ -197,19 +219,24 @@ def _telegram_update_poller(bot_token: str):
                         info = pending_callbacks.pop(cb_data)
                         # acknowledge callback
                         try:
-                            requests.post(f"https://api.telegram.org/bot{bot_token}/answerCallbackQuery", data={"callback_query_id": cq.get("id"), "text": "ออเดอร์ถูกทำเสร็จแล้ว ✅"})
+                            resp2 = requests.post(f"https://api.telegram.org/bot{bot_token}/answerCallbackQuery", data={"callback_query_id": cq.get("id"), "text": "ออเดอร์ถูกทำเสร็จแล้ว ✅"}, timeout=10)
+                            logger.info("answerCallbackQuery: %s %s", resp2.status_code, getattr(resp2, 'text', None))
                         except Exception:
-                            pass
+                            logger.exception("answerCallbackQuery failed")
                         # edit original message to indicate done
                         try:
                             edit_text = info.get("text") + "\n\n✅ สถานะ: เสร็จแล้ว"
-                            requests.post(f"https://api.telegram.org/bot{bot_token}/editMessageText", data={"chat_id": info.get("chat_id"), "message_id": info.get("message_id"), "text": edit_text})
+                            resp3 = requests.post(f"https://api.telegram.org/bot{bot_token}/editMessageText", data={"chat_id": info.get("chat_id"), "message_id": info.get("message_id"), "text": edit_text}, timeout=10)
+                            logger.info("editMessageText: %s %s", resp3.status_code, getattr(resp3, 'text', None))
                         except Exception:
-                            pass
+                            logger.exception("editMessageText failed")
                         # mark sheet rows
                         _mark_order_done_in_sheet(info.get("timestamp"))
+                    else:
+                        logger.warning("callback_data not found in pending_callbacks: %s", cb_data)
             time.sleep(1)
         except Exception:
+            logger.exception("Exception in telegram poller loop")
             time.sleep(2)
 
 
@@ -220,18 +247,29 @@ def send_message_with_done_button(lines: list, bot_token: str, chat_id: str, ord
     reply_markup = {"inline_keyboard": [[{"text": "เสร็จแล้ว", "callback_data": token}]]}
     payload = {"chat_id": chat_id, "text": "\n".join(lines), "reply_markup": json.dumps(reply_markup)}
     try:
-        resp = requests.post(f"https://api.telegram.org/bot{bot_token}/sendMessage", data=payload)
+        resp = requests.post(f"https://api.telegram.org/bot{bot_token}/sendMessage", data=payload, timeout=10)
+        try:
+            logger.info("sendMessage resp: %s %s", resp.status_code, resp.text)
+        except Exception:
+            pass
         if not resp.ok:
             return False
-        resj = resp.json()
+        try:
+            resj = resp.json()
+        except Exception:
+            logger.exception("failed to parse sendMessage response JSON")
+            return False
         msg_id = resj.get("result", {}).get("message_id")
         pending_callbacks[token] = {"timestamp": order_timestamp, "message_id": msg_id, "chat_id": chat_id, "text": "\n".join(lines)}
+        logger.info("registered pending callback token=%s msg_id=%s", token, msg_id)
         # start listener thread once
         if listener_thread is None or not listener_thread.is_alive():
             listener_thread = threading.Thread(target=_telegram_update_poller, args=(bot_token,), daemon=True)
             listener_thread.start()
+            logger.info("started telegram listener thread")
         return True
     except Exception:
+        logger.exception("send_message_with_done_button failed")
         return False
 
 
