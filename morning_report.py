@@ -176,7 +176,7 @@ def render_message(rep: dict) -> str:
     lines = []
 
     lines.append(f"สรุปยอดร้านข้าวขาหมูเมื่อวานน้าาา 🐷🍚 \nวันที่: {rep['date']}")
-    lines.append(f"ยอดรวม: ฿{rep['total_sales']:.2f} 💸")
+    lines.append(f"ยอดรวม: ฿{int(round(rep['total_sales']))} 💸")
     lines.append(f"จำนวนจานที่ขายรวม: {rep['total_items']} จาน")
 
 
@@ -185,7 +185,7 @@ def render_message(rep: dict) -> str:
         lines.append(f"เมนูที่ขายดีที่สุด: {name} x{qty} จาน 🥇🍽️")
     if rep.get("best_by_revenue"):
         name_r, rev = rep["best_by_revenue"]
-        lines.append(f"เมนูที่ทำเงินที่สุด: {name_r} — ฿{rev} 💰")
+        lines.append(f"เมนูที่ทำเงินที่สุด: {name_r} — ฿{int(round(rev))} 💰")
 
     # Per-menu breakdown (sorted by revenue desc)
     menu_qty = rep.get("menu_qty", {})
@@ -194,7 +194,7 @@ def render_message(rep: dict) -> str:
         lines.append("\nรายละเอียดตามเมนู:")
         for name, qty in sorted(menu_qty.items(), key=lambda x: menu_rev.get(x[0], 0), reverse=True):
             rev = menu_rev.get(name, 0.0)
-            lines.append(f"- {name}: {qty} จาน — ฿{rev:.2f}")
+            lines.append(f"- {name}: {qty} จาน — ฿{int(round(rev))}")
 
     lines.append("ขอบคุณทีมงานที่น่ารักทุกคนน้าาา 💖✨")
     return "\n".join(lines)
