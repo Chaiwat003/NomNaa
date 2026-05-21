@@ -174,16 +174,18 @@ def render_message(rep: dict) -> str:
         return "ไม่มีข้อมูลของเมื่อวานสำหรับร้านข้าวขาหมูเลยค่า 😭\nพักผ่อนเยอะๆ นะคะ แล้วค่อยเริ่มใหม่พรุ่งนี้นะ 💪💕"
 
     lines = []
+
     lines.append(f"สรุปยอดร้านข้าวขาหมูเมื่อวานน้าาา 🐷🍚 \nวันที่: {rep['date']}")
     lines.append(f"ยอดรวม: ฿{rep['total_sales']:.2f} 💸")
     lines.append(f"จำนวนจานที่ขายรวม: {rep['total_items']} จาน")
+
 
     if rep.get("best_by_qty"):
         name, qty = rep["best_by_qty"]
         lines.append(f"เมนูที่ขายดีที่สุด: {name} x{qty} จาน 🥇🍽️")
     if rep.get("best_by_revenue"):
         name_r, rev = rep["best_by_revenue"]
-        lines.append(f"เมนูที่ทำเงินที่สุด: {name_r} — ฿{rev:.2f} 💰")
+        lines.append(f"เมนูที่ทำเงินที่สุด: {name_r} — ฿{rev} 💰")
 
     # Per-menu breakdown (sorted by revenue desc)
     menu_qty = rep.get("menu_qty", {})

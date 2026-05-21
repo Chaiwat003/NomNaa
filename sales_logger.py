@@ -46,7 +46,7 @@ def parse_entry(entry: str) -> tuple[str, int, float]:
 
 
 def format_items(items: list[tuple[str, int, float]]) -> str:
-	return ", ".join(f"{name} x{qty} @{price:.2f}" for name, qty, price in items)
+	return ", ".join(f"{name} x{qty} @{price}" for name, qty, price in items)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -101,8 +101,8 @@ def main(argv: list[str] | None = None) -> int:
 				name,
 				"",
 				str(qty),
-				f"{price:.2f}",
-				f"{item_total:.2f}",
+				f"{price}",
+				f"{item_total}",
 				"",
 				"",
 			]

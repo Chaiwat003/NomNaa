@@ -1,13 +1,32 @@
+---
+title: Khamoonaa
+emoji: 🐷
+colorFrom: pink
+colorTo: red
+sdk: streamlit
+app_file: app.py
+pinned: false
+---
+
 # ขาหมูน้าา — ระบบช่วยรับออเดอร์หน้าร้าน 🍽️
 
 ระบบช่วยรับและสรุปออเดอร์สำหรับร้าน "ขาหมูน้าา" โดยมุ่งเน้นการรองรับคำสั่งแบบมีเงื่อนไข (เช่น "ไม่เอาไข่ต้ม", "แยกน้ำ") และการคำนวณราคาตามท็อปปิ้ง/ตัวเลือกต่าง ๆ รวมถึงจัดข้อความสั้นสำหรับครัวเพื่อให้แม่ค้าทำงานต่อได้รวดเร็ว
+ 
+Short overview (EN): A simple order-capture and summarization tool for a small restaurant. It parses natural-language orders with conditional modifiers (e.g. "no boiled egg", "separate sauce"), calculates pricing for toppings/options, and generates concise kitchen notes.
+
+## 🔗 Live demo
+
+```
+https://www.khamoonaa.dev/
+```
 
 ## 🔎 Demo Day Checklist
 
-- [ ] อธิบายว่าระบบทำอะไรสำหรับ domain ของนักศึกษา (ไม่ใช่ MilkLab°)
-- [ ] ใส่ link ไปยัง live demo URL: https://<YOUR_DEPLOY_URL> (แทนที่ด้วย URL จริง)
-- [ ] มีวิธีรันในเครื่องท้องถิ่น (local setup)
-- [ ] ใส่ link ไปยัง PIVOT.md เพื่อให้ recruiter เห็น thinking process: [PIVOT.md](PIVOT.md)
+- [x] อธิบายว่าระบบทำอะไรสำหรับ domain ของนักศึกษา (ไม่ใช่ MilkLab°)
+- [x] ใส่ link ไปยัง live demo URL: https://www.khamoonaa.dev/ 
+- [x] มีวิธีรันในเครื่องท้องถิ่น (local setup)
+- [x] ใส่ link ไปยัง PIVOT.md เพื่อให้ recruiter เห็น thinking process: [PIVOT.md](PIVOT.md)
+
 
 ## ✨ ฟีเจอร์หลัก
 
@@ -38,25 +57,19 @@ python -m pip install -r requirements.txt
 GOOGLE_API_KEY=your_google_api_key_here
 ```
 
-3. รันแอปตัวอย่าง (ถ้ามี UI แบบ Streamlit):
+3. รันแอปตัวอย่าง (Streamlit) หรือสคริปต์ตัวอย่าง:
 
-```powershell
-# รัน Streamlit UI
-c:/python312/python.exe -m streamlit run app.py
+```bash
+# หากใช้ Streamlit (จำเป็นต้องติดตั้ง streamlit ใน requirements)
+python -m streamlit run app.py
 
-# หรือรันไฟล์ CLI
-c:/python312/python.exe caption.py
+# หรือรันสคริปต์สรุป/เทสต์ CLI
+python caption.py
 ```
 
-## 🔗 Live demo
-
-ถ้ามี Deploy URL ให้วางที่นี่ (ตัวอย่าง):
-
-```
-https://your-deploy-url.example
-```
-
-แทนที่ด้วย URL จริงก่อน Demo Day เพื่อให้ลิงก์ทำงาน
+Notes:
+- Use a virtual environment (venv/virtualenv) for local installs.
+- Keep secrets out of the repo (`service-account.json`, `.env`) and set them in your environment or CI.
 
 ## 🗂️ โครงสร้างไฟล์ที่เกี่ยวข้อง
 
@@ -84,8 +97,8 @@ https://your-deploy-url.example
 
 ## Demo Day Self-Check
 
-- [ ] Deploy URL ใช้งานได้ (เปิดทดสอบล่าสุด: __________)
-- [ ] ไม่มี `.env` หรือ `*.json` ใน git history
-- [ ] PIVOT.md ครบ 3 ข้อ
-- [ ] README อธิบายระบบของ domain ตัวเอง (ไม่ใช่ MilkLab°)
-- [ ] knowledge base, prompt, UI ปรับเป็น domain ใหม่หมดแล้ว
+- [x] Deploy URL ใช้งานได้ (เปิดทดสอบล่าสุด: 21/5/2026)
+- [x] ไม่มี `.env` หรือ `*.json` ใน git history
+- [x] PIVOT.md ครบ 3 ข้อ
+- [x] README อธิบายระบบของ domain ตัวเอง (ไม่ใช่ MilkLab°)
+- [x] knowledge base, prompt, UI ปรับเป็น domain ใหม่หมดแล้ว
