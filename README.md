@@ -22,10 +22,10 @@ https://www.khamoonaa.dev/
 
 ## 🔎 Demo Day Checklist
 
-- [x] อธิบายว่าระบบทำอะไรสำหรับ domain ของนักศึกษา (ไม่ใช่ MilkLab°)
-- [x] ใส่ link ไปยัง live demo URL: https://www.khamoonaa.dev/ 
-- [x] มีวิธีรันในเครื่องท้องถิ่น (local setup)
-- [x] ใส่ link ไปยัง PIVOT.md เพื่อให้ recruiter เห็น thinking process: [PIVOT.md](PIVOT.md)
+- [ ] อธิบายว่าระบบทำอะไรสำหรับ domain ของนักศึกษา (ไม่ใช่ MilkLab°)
+- [ ] ใส่ link ไปยัง live demo URL: https://www.khamoonaa.dev/ 
+- [ ] มีวิธีรันในเครื่องท้องถิ่น (local setup)
+- [ ] ใส่ link ไปยัง PIVOT.md เพื่อให้ recruiter เห็น thinking process: [PIVOT.md](PIVOT.md)
 
 
 ## ✨ ฟีเจอร์หลัก
@@ -97,8 +97,8 @@ Notes:
 
 ## Demo Day Self-Check
 
-- [x] Deploy URL ใช้งานได้ (เปิดทดสอบล่าสุด: 21/5/2026)
-- [x] ไม่มี `.env` หรือ `*.json` ใน git history
-- [x] PIVOT.md ครบ 3 ข้อ
-- [x] README อธิบายระบบของ domain ตัวเอง (ไม่ใช่ MilkLab°)
-- [x] knowledge base, prompt, UI ปรับเป็น domain ใหม่หมดแล้ว
+- [ ] Deploy URL ใช้งานได้ (เปิดทดสอบล่าสุด: 21/5/2026)
+- [ ] ไม่มี `.env` หรือ `*.json` ใน git history
+- [ ] PIVOT.md ครบ 3 ข้อ
+- [ ] README อธิบายระบบของ domain ตัวเอง (ไม่ใช่ MilkLab°)
+- [ ] knowledge base, prompt, UI ปรับเป็น domain ใหม่หมดแล้ว
